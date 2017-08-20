@@ -1,6 +1,12 @@
-/nbproject
-/lib
-/build
-/dist
 /.idea
 *.iml
+*.class
+.mtj.tmp/
+.idea
+# Package Files #
+*.jar
+*.war
+*.ear
+target
+hs_err_pid*
+.directory
