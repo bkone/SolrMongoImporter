@@ -90,10 +90,9 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 	 */
 	@Override
 	public Iterator<Map<String, Object>> getData(String query) {
+		LOG.info("Started data import for query: " + query);
+
 		BasicDBObject queryObject = (BasicDBObject) JSON.parse(query);
-		LOG.warn("YAHOO");
-		LOG.warn(query);
-		LOG.warn(queryObject.toString());
 		mongoCursor = this.mongoCollection.find(queryObject).iterator();
 
 		ResultSetIterator resultSet = new ResultSetIterator(mongoCursor);
