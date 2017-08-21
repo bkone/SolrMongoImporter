@@ -98,7 +98,7 @@ Welcome to the Solr MongoDB Importer project. This project provides MongoDB supp
            <!--  If mongoField name and the field declared in schema.xml are same than no need to declare below.
                If not same than you have to refer the mongoField to field in schema.xml
               ( Ex: mongoField="EmpNumber" to name="EmployeeNumber"). -->
-          <field column="_id" name="id" hashObjectId="true"/> <!-- docId has long type-->
+          <field column="_id" name="id"/> <!-- docId has long type-->
           <field column="name" name="name" mongoField="name"/>
           <field column="size" name="size" mongoField="attrib.size"/>
           <field column="created" name="created" mongoField="created" dateFormat="yyyy-MM-dd HH:mm:ss"/>
