@@ -28,6 +28,7 @@ public class MongoEntityProcessor extends EntityProcessorBase {
 	protected MongoDataSource dataSource;
 
 	private String collection;
+	private Integer limit;
 
 	/**
 	 * Initialize
@@ -44,6 +45,19 @@ public class MongoEntityProcessor extends EntityProcessorBase {
 			throw new DataImportHandlerException(SEVERE, "Collection must be supplied");
 		}
 		this.dataSource = (MongoDataSource) context.getDataSource();
+
+		String limitAttribute = context.getEntityAttribute(LIMIT);
+		if(limitAttribute==null) {
+			limit=0;
+		} else {
+			try {
+
+				limit = Integer.parseInt(limitAttribute);
+			} catch (Exception e) {
+				LOG.warn("Invalid integer value for limit, ignoring limit value");
+				limit=0;
+			}
+		}
 	}
 
 	/**
@@ -55,7 +69,7 @@ public class MongoEntityProcessor extends EntityProcessorBase {
 		try {
 			q = replaceDateTimeToISODateTime(q);
 			DataImporter.QUERY_COUNT.get().incrementAndGet();
-			rowIterator = dataSource.getData(q, this.collection);
+			rowIterator = dataSource.getData(q, this.collection,limit);
 			this.query = q;
 		} catch (DataImportHandlerException e) {
 			throw e;
@@ -116,5 +130,10 @@ public class MongoEntityProcessor extends EntityProcessorBase {
     public static final String DELTA_QUERY = "deltaQuery";
 
     public static final String DELTA_IMPORT_QUERY = "deltaImportQuery";
+	/**
+	 * Limit option
+	 *
+	 */
+	private static final String LIMIT="limit";
 
 }

@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,14 @@ public class MongoMapperTransformer extends Transformer {
 	 */
 	@Override
 	public Object transformRow(Map<String, Object> row, Context context) {
+
+
+		for (String rowKey : row.keySet()) {
+
+			if( row.get(rowKey) instanceof ObjectId) {
+				row.put(rowKey, ((ObjectId) row.get(rowKey)).toHexString());
+			}
+		}
 
 		for (Map<String, String> map : context.getAllEntityFields()) {
 			String mongoFieldName = map.get(MONGO_FIELD);
@@ -65,8 +74,8 @@ public class MongoMapperTransformer extends Transformer {
 
 			row.put(columnFieldName, value);
 
-		}
 
+		}
 		return row;
 	}
 

@@ -1,14 +1,10 @@
-/**
- * Solr MongoDB data import handler
- * 
- */
 package org.apache.solr.handler.dataimport;
+
 
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.util.JSON;
 
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -32,6 +28,7 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 	private MongoClient mongoClient;
 	private MongoCursor mongoCursor;
 	private String mapMongoFields;
+	private Integer limit;
 	
 	/**
 	 * Initialize
@@ -47,10 +44,11 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 		String port = initProps.getProperty(PORT, "27017");
 		String username = initProps.getProperty(USERNAME);
 		String password = initProps.getProperty(PASSWORD);
+
 		mapMongoFields = initProps.getProperty(MAP_MONGO_FIELDS, "true");
 
 
-		List<ServerAddress> seeds = new ArrayList<ServerAddress>();
+		List<ServerAddress> seeds = new ArrayList<>();
 		String[] hosts = host.split(",");
 		String[] ports = port.split(",");
 
@@ -63,16 +61,18 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 			throw new DataImportHandlerException(SEVERE, "Database must be supplied");
 		}
 
+		MongoClientOptions clientOptions = MongoClientOptions.builder().
+				readPreference(ReadPreference.secondaryPreferred()).build();
 		try {
 			if (username != null) {
 				MongoCredential credential = MongoCredential.createCredential(username, databaseName, password.toCharArray());
 
-				this.mongoClient = new MongoClient(seeds, Arrays.asList(credential));
+				this.mongoClient = new MongoClient(seeds, Arrays.asList(credential),clientOptions);
 			} else {
-				this.mongoClient = new MongoClient(seeds);
+				this.mongoClient = new MongoClient(seeds,clientOptions);
 			}
 
-			this.mongoClient.setReadPreference(ReadPreference.secondaryPreferred());
+
 			this.mongoDb = this.mongoClient.getDatabase(databaseName);
                         this.mongoDb = this.mongoDb.withReadPreference(ReadPreference.secondaryPreferred());
 		} catch (RuntimeException e) {
@@ -92,8 +92,9 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 	public Iterator<Map<String, Object>> getData(String query) {
 		LOG.info("Started data import for query: " + query);
 
-		BasicDBObject queryObject = (BasicDBObject) JSON.parse(query);
-		mongoCursor = this.mongoCollection.find(queryObject).iterator();
+		BasicDBObject queryObject = BasicDBObject.parse(query);
+
+		mongoCursor = this.mongoCollection.find(queryObject).limit(limit).iterator();
 
 		ResultSetIterator resultSet = new ResultSetIterator(mongoCursor);
 		return resultSet.getIterator();
@@ -106,8 +107,9 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 	 * @param collection
 	 * @return 
 	 */
-	public Iterator<Map<String, Object>> getData(String query, String collection) {
+	public Iterator<Map<String, Object>> getData(String query, String collection, Integer limit) {
 		this.mongoCollection = this.mongoDb.getCollection(collection);
+		this.limit = limit;
 		return getData(query);
 	}
 
@@ -197,7 +199,7 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 					((ArrayList)response).add(serializeObject(((ArrayList) object).get(i)));
 				}
 			}else if(object instanceof Document){
-				response = JSON.parse(((Document) object).toJson());
+				response = Document.parse(((Document) object).toJson());
 			}else{
 				response = object;
 			}
@@ -385,36 +387,37 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 	 * Database option
 	 * 
 	 */
-	public static final String DATABASE = "database";
+	private static final String DATABASE = "database";
 	
 	/**
 	 * Host option
 	 * 
 	 */
-	public static final String HOST = "host";
+	private static final String HOST = "host";
 	
 	/**
 	 * Port option
 	 * 
 	 */
-	public static final String PORT = "port";
+	private static final String PORT = "port";
 	
 	/**
 	 * Username option
 	 * 
 	 */
-	public static final String USERNAME = "username";
+	private static final String USERNAME = "username";
 	
 	/**
 	 * Password option
 	 * 
 	 */
-	public static final String PASSWORD = "password";
+	private static final String PASSWORD = "password";
 
 	/**
 	 * Map Mongo Fields option
 	 *
 	 */
-	public static final String MAP_MONGO_FIELDS = "mapMongoFields";
+	private static final String MAP_MONGO_FIELDS = "mapMongoFields";
+
 		
 }
