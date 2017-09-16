@@ -204,6 +204,8 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 				response = object;
 			}
 			return response;
+
+
 		}
 
 		/**
@@ -214,6 +216,7 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 		 * @return 
 		 */
 		private Set<String> getDocumentKeys(Document doc, String parentKey) {
+
 			Set<String> keys = new HashSet<String>();
 
 			Set<String> docKeys = doc.keySet();
@@ -258,8 +261,23 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 
 						Object listItem = listIterator.next();
 
-						if (listItem instanceof Document || listItem instanceof ArrayList) {
+						if (listItem instanceof Document) {
 							Set<String> subKeys = getDocumentKeys((Document) listItem, parent);
+
+							Iterator<String> subKeysIterator = subKeys.iterator();
+
+							while (subKeysIterator.hasNext()) {
+								keys.add(subKeysIterator.next());
+							}
+
+							if (isScalarValuesOnly) {
+								isScalarValuesOnly = false;
+							}
+						}
+
+						if (listItem instanceof ArrayList) {
+
+							Set<String> subKeys = getDocumentKeys(getDocumentFromArrayList((ArrayList) listItem), parent);
 
 							Iterator<String> subKeysIterator = subKeys.iterator();
 
@@ -293,6 +311,17 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 			return keys;
 		}
 
+		private Document getDocumentFromArrayList(ArrayList list) {
+
+			Document document = new Document();
+
+			for (int i = 0; i <list.size() ; i++) {
+				document.put(String.valueOf(i),list.get(i));
+			}
+
+			return document;
+		}
+
 		/**
 		 * Get a document filed value by field name
 		 * 
@@ -324,10 +353,12 @@ public class MongoDataSource extends DataSource<Iterator<Map<String, Object>>> {
 		 * 
 		 * @return 
 		 */
-		private boolean hasnext() {
+		private boolean hasnext(){
+
 			if (mongoCursor == null) {
 				return false;
 			}
+
 			try {
 				if (mongoCursor.hasNext()) {
 					return true;

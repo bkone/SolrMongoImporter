@@ -7,6 +7,8 @@ Welcome to the Solr MongoDB Importer project. This project provides MongoDB supp
 * Map Mongo fields to Solr fields wit mapMongoFields option (for accessing nested fields use "." (dot) as path separator eg.: *Params.Size*)
 * Date conversion of field value to required format
 * Delta import available
+* Upgrade Solr to 6.6
+* Change to Maven and create fat jar  
 
 ## Classes
 
@@ -109,6 +111,7 @@ Welcome to the Solr MongoDB Importer project. This project provides MongoDB supp
     </dataConfig>
     ```
 
+* Date transformation is only needed for non-date objects
 ##Usage
 To run full-import ( Deletes all data in index and does a Fresh full import)
 ```
