@@ -21,7 +21,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <solr.version>6.6.0</solr.version>
+        <solr.version>7.3.0</solr.version>
     </properties>
 
     <scm>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>3.5.0</version>
+            <version>3.6.4</version>
         </dependency>
     </dependencies>
     <build>

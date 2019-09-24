@@ -7,7 +7,8 @@ Welcome to the Solr MongoDB Importer project. This project provides MongoDB supp
 * Map Mongo fields to Solr fields wit mapMongoFields option (for accessing nested fields use "." (dot) as path separator eg.: *Params.Size*)
 * Date conversion of field value to required format
 * Delta import available
-* Upgrade Solr to 6.6
+* Upgrade Solr to 7.3
+* Upgrade Mongo Driver to 3.6.4
 * Change to Maven and create fat jar  
 
 ## Classes
